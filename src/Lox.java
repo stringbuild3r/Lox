@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Lox {
     public static boolean hadError = false;
+
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
@@ -23,9 +24,9 @@ public class Lox {
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
-        if(hadError) {
+        if (hadError) {
             System.exit(
-                    65
+                    65 //data format error
             );
         }
     }
@@ -34,11 +35,12 @@ public class Lox {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        for(;;) {
+        for (;;) {
             System.out.println("> ");
             String line = reader.readLine();
-            if(line == null) break;
+            if (line == null) break;
             run(line);
+            hadError = false;
         }
 
     }
@@ -46,29 +48,20 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        for(Token token : tokens) {
+        for (Token token : tokens) {
             System.out.println(tokens);
         }
-
-       static void error(int line, String message)  {
-            report(line, "", message);
-        }
-
-
-        public static void report(int line, String where, String message) {
-            System.err.println("[line " + line + "] Error" + where + ": " + message);
-            hadError = true;
-        }
-
-
-
     }
 
+    static void error(int line, String message) {
+        report(line, "", message);
+    }
 
-
-
-
-
+    public static void report(int line, String where, String message) {
+        System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
+    }
+}
 
 
 
