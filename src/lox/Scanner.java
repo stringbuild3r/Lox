@@ -14,23 +14,43 @@ public class Scanner {
     private int current = 0;
     private int line = 1;
     private final List<Token> tokens = new ArrayList<>();
+    private static final Map<String, TokenType> keywords;
 
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
 
-    public Scanner(String source) {
+    Scanner(String source) {
         this.source = source;
     }
 
     List<Token> scanTokens() {
         while(!isAtEnd()) {
            start = current; //start is beginning of lexeme. sets to curr when moving to next tok
-           scanTokens();
+           scanToken();
         }
 
         tokens.add(new Token(EOF,"", null, line));
         return tokens;
     }
 
-    public boolean isAtEnd() {
+    private boolean isAtEnd() {
         return current >= source.length();
     }
 
@@ -83,17 +103,20 @@ public class Scanner {
             default:
                 if(isDigit(c)){
                     number();
+                } else if (isAlpha(c)) {
+                    identifier();
                 } else {
-                    Lox.error(line, "Unexpected charcter.");
+                    Lox.error(line, "Unexpected character.");
                 }
                 break;
         }
     }
-    public boolean isDigit(char c) {
+
+    private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
 
-    public void number() {
+    private void number() {
         while(isDigit(peek())) advance();
         if(peek() == '.' && isDigit(peekNext())) {
             advance();
@@ -109,13 +132,13 @@ public class Scanner {
     }
 
 
-    public char advance() {
+    private char advance() {
         return source.charAt(current++);
     }
     private void addToken(TokenType tok) { //tokens with no value (ops, keywords)
         addToken(tok, null);
     }
-    public void addToken(TokenType type, Object literal) { //tokens that carry value NUMBER. STRING
+    private void addToken(TokenType type, Object literal) { //tokens that carry value NUMBER. STRING
         String text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
     }
@@ -149,6 +172,25 @@ public class Scanner {
 
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) advance();
+
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null) type = IDENTIFIER;
+        addToken(type);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
 
