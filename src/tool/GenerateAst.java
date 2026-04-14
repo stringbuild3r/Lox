@@ -13,5 +13,41 @@ public class GenerateAst {
       System.exit(64);
     }
     String outputDir = args[0];
+    defineAst(outputDir, "Expr", Arrays.asList(
+      "Binary   : Expr left, Token operator, Expr right",
+      "Grouping : Expr expression",
+      "Literal  : Object value",
+      "Unary    : Token operator, Expr right"
+    ));
   }
+
+  private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
+    String path = outputDir + "/" + baseName + ".java";
+    PrintWriter writer = new PrintWriter(path, "UTF-8");
+
+    writer.println("package lox;");
+    writer.println();
+    writer.println("import java.util.List;");
+    writer.println();
+    writer.println("abstract class " + baseName + " {");
+
+    writer.println("}");
+    writer.close();
+
+    for(String type : types) {
+      String className = type.split(":")[0].trim(); //binary, grouping, literal, unary
+      String fields = type.split(":")[1].trim(); //ex. expr Left, token operator, expr right 
+      defineType(writer, baseName, className, fields);
+    }
+
+
+
+  }
+
+
+
+
+
+
+
 }
