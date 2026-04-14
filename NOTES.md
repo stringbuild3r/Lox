@@ -20,3 +20,8 @@
 - `current` is incremented in two places:
     - `advance()` — `current++` every time a character is consumed
     - `match()` — `current++` when the next character matches the expected one
+
+# Syntactic vs Lexical
+
+ - 'Syntactic' is what is done with the tokens
+ - 'Lexical' operates on characters and creates tokens from them
